@@ -55,7 +55,7 @@ type insert struct {
 // Global DB pool
 var dbpool *pgxpool.Pool
 
-// ConnectDB initializes a connection pool to PostgreSQL
+// ConnectDB initializes a connection pool to SQLServer
 func ConnectDB(uri string) (*pgxpool.Pool, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -232,7 +232,7 @@ func Open(driverName, dataSourceName string, flushInterval uint) (*DB, error) {
 	}, err
 }
 
-func OpenPostgres(connection_string string, flushInterval uint) (*DB, error) {
+func OpenSQLServer(connection_string string, flushInterval uint) (*DB, error) {
 	var connection Myconnection
 	dbFields := strings.Split(connection_string, ",")
 
@@ -269,28 +269,27 @@ func OpenPostgres(connection_string string, flushInterval uint) (*DB, error) {
 	// 	dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s?allowAllFiles=true", connection.user_name, connection.password, connection.ip_address, connection.database)
 	// }
 	//os.Setenv("ENTRUST_CONNECT", "postgresql://neondb_owner:VUv7XHg0fJCA@ep-nameless-bread-a1xl9pip.ap-southeast-1.aws.neon.tech/neondb?sslmode=require")
-	// dsn := "host=ep-nameless-bread-a1xl9pip.ap-southeast-1.aws.neon.tech port=5432 user=neondb_owner password=VUv7XHg0fJCA dbname=neondb sslmode=require"
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=require", connection.ip_address, connection.port, connection.user_name, connection.ro_password)
+	dsn := fmt.Sprintf("sqlserver://%s:%s@%s:%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port)
 	if len(connection.database) > 0 {
-		dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", connection.ip_address, connection.port, connection.user_name, connection.ro_password, connection.database)
+		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s", connection.ip_address, connection.port, connection.user_name, connection.ro_password, connection.database)
 	}
 
-	db, err := Open("postgres", dsn, flushInterval)
+	db, err := Open("sqlserver", dsn, flushInterval)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	// Verify connection
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("cannot reach database: %v", err)
-	}
+	// if err := db.Ping(); err != nil {
+	// 	return nil, fmt.Errorf("cannot reach database: %v", err)
+	// }
 
 	return db, err
 }
 
 func DBList(db *sql.DB) ([]string, error) {
 	// rows, err := db.Query("SHOW DATABASES")
-	rows, err := db.Query("SELECT datname FROM pg_database")
+	rows, err := db.Query("SELECT name FROM sys.databases WHERE name NOT IN ('master','model','msdb','tempdb')")
 	if err != nil {
 		return nil, fmt.Errorf("failed to query databases: %v", err)
 	}
