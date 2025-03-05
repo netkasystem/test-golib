@@ -271,7 +271,7 @@ func OpenSQLServer(connection_string string, flushInterval uint) (*DB, error) {
 	//os.Setenv("ENTRUST_CONNECT", "postgresql://neondb_owner:VUv7XHg0fJCA@ep-nameless-bread-a1xl9pip.ap-southeast-1.aws.neon.tech/neondb?sslmode=require")
 	dsn := fmt.Sprintf("sqlserver://%s:%s@%s:%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port)
 	if len(connection.database) > 0 {
-		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s", connection.ip_address, connection.port, connection.user_name, connection.ro_password, connection.database)
+		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port, connection.database)
 	}
 
 	db, err := Open("sqlserver", dsn, flushInterval)
