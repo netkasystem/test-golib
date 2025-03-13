@@ -260,9 +260,9 @@ func OpenOracle(connection_string string, flushInterval uint) (*DB, error) {
 		}
 	}
 
-	dsn := fmt.Sprintf("oracle://%s:%s@%s:%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port)
+	dsn := fmt.Sprintf("oracle://%s/%s@%s:%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port)
 	if len(connection.database) > 0 {
-		dsn = fmt.Sprintf("oracle://%s:%s@%s:%s?database=%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port, connection.database)
+		dsn = fmt.Sprintf("oracle://%s/%s@%s:%s/database=%s", connection.user_name, connection.ro_password, connection.ip_address, connection.port, connection.database)
 	}
 
 	db, err := Open("oracle", dsn, flushInterval)
